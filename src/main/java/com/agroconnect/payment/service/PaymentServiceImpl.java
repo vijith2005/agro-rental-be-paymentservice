@@ -14,17 +14,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
+
+    public PaymentServiceImpl(PaymentRepository paymentRepository) {
+        this.paymentRepository = paymentRepository;
+    }
 
     @Override
     public PaymentResponse createPayment(Authentication authentication, PaymentCreateRequest request) {
@@ -33,28 +35,27 @@ public class PaymentServiceImpl implements PaymentService {
             throw new AccessDeniedException("You can only create your own payment");
         }
 
-        Payment payment = Payment.builder()
-                .id("pay-" + UUID.randomUUID())
-                .rentalId(trim(request.rentalId()))
-                .equipmentId(trim(request.equipmentId()))
-                .equipmentName(trim(request.equipmentName()))
-                .farmerId(normalize(request.farmerId()))
-                .farmerName(trim(request.farmerName()))
-                .ownerId(normalize(request.ownerId()))
-                .ownerName(trim(request.ownerName()))
-                .amount(request.amount())
-                .currency("INR")
-                .paymentMethod(trim(request.paymentMethod()))
-                .gateway(trimToNull(request.gateway()))
-                .transactionId(defaultIfBlank(request.transactionId(), "txn-" + UUID.randomUUID()))
-                .receiptNumber(defaultIfBlank(request.receiptNumber(), "rcpt-" + UUID.randomUUID()))
-                .note(trimToNull(request.note()))
-                .status(request.status() == null ? PaymentStatus.PAID : request.status())
-                .initiatedAt(LocalDateTime.now())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .paidAt(request.status() == null || request.status() == PaymentStatus.PAID ? LocalDateTime.now() : null)
-                .build();
+        Payment payment = new Payment();
+        payment.setId("pay-" + UUID.randomUUID());
+        payment.setRentalId(trim(request.rentalId()));
+        payment.setEquipmentId(trim(request.equipmentId()));
+        payment.setEquipmentName(trim(request.equipmentName()));
+        payment.setFarmerId(normalize(request.farmerId()));
+        payment.setFarmerName(trim(request.farmerName()));
+        payment.setOwnerId(normalize(request.ownerId()));
+        payment.setOwnerName(trim(request.ownerName()));
+        payment.setAmount(request.amount());
+        payment.setCurrency("INR");
+        payment.setPaymentMethod(trim(request.paymentMethod()));
+        payment.setGateway(trimToNull(request.gateway()));
+        payment.setTransactionId(defaultIfBlank(request.transactionId(), "txn-" + UUID.randomUUID()));
+        payment.setReceiptNumber(defaultIfBlank(request.receiptNumber(), "rcpt-" + UUID.randomUUID()));
+        payment.setNote(trimToNull(request.note()));
+        payment.setStatus(request.status() == null ? PaymentStatus.PAID : request.status());
+        payment.setInitiatedAt(LocalDateTime.now());
+        payment.setCreatedAt(LocalDateTime.now());
+        payment.setUpdatedAt(LocalDateTime.now());
+        payment.setPaidAt(request.status() == null || request.status() == PaymentStatus.PAID ? LocalDateTime.now() : null);
 
         Payment saved = paymentRepository.save(payment);
         return toResponse(saved);

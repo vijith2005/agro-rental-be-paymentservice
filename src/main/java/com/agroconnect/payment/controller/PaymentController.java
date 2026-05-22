@@ -2,8 +2,11 @@ package com.agroconnect.payment.controller;
 
 import com.agroconnect.payment.dto.PaymentCreateRequest;
 import com.agroconnect.payment.dto.PaymentResponse;
+import com.agroconnect.payment.dto.RazorpayOrderRequest;
+import com.agroconnect.payment.dto.RazorpayOrderResponse;
 import com.agroconnect.payment.dto.PaymentStatusRequest;
 import com.agroconnect.payment.service.PaymentService;
+import com.agroconnect.payment.service.RazorpayOrderService;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -23,9 +26,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final RazorpayOrderService razorpayOrderService;
 
-    public PaymentController(PaymentService paymentService) {
+    public PaymentController(PaymentService paymentService, RazorpayOrderService razorpayOrderService) {
         this.paymentService = paymentService;
+        this.razorpayOrderService = razorpayOrderService;
+    }
+
+    @PostMapping({"/razorpay/orders", "/razorpay/orders/"})
+    @PreAuthorize("hasAnyRole('FARMER', 'ADMIN')")
+    public ResponseEntity<RazorpayOrderResponse> createRazorpayOrder(
+            @Valid @RequestBody RazorpayOrderRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(razorpayOrderService.createOrder(request));
     }
 
     @PostMapping({"", "/"})
