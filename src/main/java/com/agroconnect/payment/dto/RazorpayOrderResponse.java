@@ -5,6 +5,7 @@ public record RazorpayOrderResponse(
         Integer amount,
         String currency,
         String receipt,
-        String status
+        String status,
+        String keyId
 ) {
 }

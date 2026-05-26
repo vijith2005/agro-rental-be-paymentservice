@@ -66,6 +66,12 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.getPaymentById(id));
     }
 
+    @GetMapping({"", "/"})
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<PaymentResponse>> getAll() {
+        return ResponseEntity.ok(paymentService.getAllPayments());
+    }
+
     @GetMapping({"/farmer/{farmerId}", "/farmer/{farmerId}/"})
     @PreAuthorize("hasAnyRole('FARMER', 'ADMIN')")
     public ResponseEntity<List<PaymentResponse>> byFarmer(
