@@ -72,7 +72,8 @@ public class RazorpayOrderService {
                     node.path("amount").isNumber() ? node.path("amount").asInt() : request.amount() * 100,
                     node.path("currency").asText("INR"),
                     node.path("receipt").asText(request.receipt()),
-                    node.path("status").asText("created")
+                    node.path("status").asText("created"),
+                    keyId
             );
         } catch (BadRequestException ex) {
             throw ex;

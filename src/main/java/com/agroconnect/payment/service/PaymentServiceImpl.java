@@ -10,6 +10,7 @@ import com.agroconnect.payment.exception.ResourceConflictException;
 import com.agroconnect.payment.exception.ResourceNotFoundException;
 import com.agroconnect.payment.repository.PaymentRepository;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -78,6 +79,19 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public PaymentResponse getPaymentById(String id) {
         return toResponse(findByIdOrThrow(id));
+    }
+
+    @Override
+    public List<PaymentResponse> getAllPayments() {
+        return paymentRepository.findAll()
+                .stream()
+                .sorted(
+                        Comparator.comparing(Payment::getUpdatedAt, Comparator.nullsLast(Comparator.reverseOrder()))
+                                .thenComparing(Payment::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder()))
+                                .thenComparing(Payment::getId, Comparator.nullsLast(Comparator.reverseOrder()))
+                )
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override
